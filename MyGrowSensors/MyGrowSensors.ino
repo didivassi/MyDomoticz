@@ -84,7 +84,7 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and
 #define CHILD_ID_DIST 1
 #define CHILD_ID_WATER_TEMP 2
 #define CHILD_ID_EC 3
-unsigned long SLEEP_TIME = 30; // Sleep time between reads (in milliseconds)
+unsigned long SLEEP_TIME = 3000; // Sleep time between reads (in milliseconds)
 #include <SPI.h>
 #include <MySensor.h>  
   
