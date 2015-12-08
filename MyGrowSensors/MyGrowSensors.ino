@@ -58,6 +58,12 @@ byte string_received=0;            //used to identify when we have received a st
 
 float EC=0;                  //used to hold a floating point number that is the EC.
 
+int oldDistance=0;
+float oldEC=0;
+float deltaEC=0;
+int countEC=0;
+float oldTemp=0;
+int count=0;
 
 
 //Sonar Stuff
@@ -84,7 +90,7 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and
 #define CHILD_ID_DIST 1
 #define CHILD_ID_WATER_TEMP 2
 #define CHILD_ID_EC 3
-unsigned long SLEEP_TIME = 3000; // Sleep time between reads (in milliseconds)
+unsigned long SLEEP_TIME = 2000; // Sleep time between reads (in milliseconds)
 #include <SPI.h>
 #include <MySensor.h>  
   
@@ -107,7 +113,7 @@ void setup()
   //EC stuff
   myserial.begin(115200);        //enable the software serial port     
   myserial.print("C,0\r"); //disables continuous mode
-  myserial.print("L,0\r"); //disables leds
+  myserial.print("L,1\r"); //disables leds
   myserial.print("RESPONSE,0\r"); // disables response from sensors like OK
   //myserial.print("SERIAL,115200\r");
   myserial.print("O,EC,1\r");
@@ -151,11 +157,6 @@ void presentation(){
   }
 
 
-int oldDistance=0;
-int oldEC=0;
-int deltaEC=0;
-int countEC=0;
-int oldTemp=0;
 
 void loop()      
 {  
@@ -171,7 +172,7 @@ void loop()
 unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
 int Distance=uS / US_ROUNDTRIP_CM;
  
-if (oldDistance != Distance && Distance > 0){
+if ((oldDistance != Distance && Distance > 0)|| count >21){
   send(msgDistance.set(Distance, 1));
   oldDistance = Distance;
 }
@@ -181,9 +182,10 @@ if (oldDistance != Distance && Distance > 0){
    waterTemp_float = sensors.getTempCByIndex(0);
     //send to gateway
     
-  if (oldTemp != waterTemp_float){
+  if (oldTemp != waterTemp_float || count >21){
    send(msgWaterTemp.set(waterTemp_float, 1));
    oldTemp = waterTemp_float;
+   
   }
 
 //send info to sensor
@@ -191,15 +193,16 @@ if (oldDistance != Distance && Distance > 0){
    myserial.print (waterTemp_float) ;
    myserial.print('\r'); 
 //get single reading
+ // sleep(30);
    myserial.print("R\r"); 
  
    
   if(myserial.available() > 0){        //if we see that the EC Circuit has sent a character.
      received_from_sensor=myserial.readBytesUntil(13,EC_data,48); //we read the data sent from EC Circuit until we see a <CR>. We also count how many character have been received.  
      EC_data[received_from_sensor]=0;  //we add a 0 to the spot in the array just after the last character we received. This will stop us from transmitting incorrect data that may have been left in the buffer.       EC=  atof(strtok(EC_data, ","));  //convert data to Float
-     EC=  atof(strtok(EC_data, ","));  //convert data to Float
-
-     if(EC>0){  
+     EC=  atof(strtok(EC_data, ","));  //convert data to Float  
+     }
+      if(EC>0){  
        
        deltaEC = abs(oldEC-EC);
        
@@ -210,15 +213,26 @@ if (oldDistance != Distance && Distance > 0){
         
        if(countEC>10){ //must be a good value
            countEC=0;
-           EC=  atof(strtok(EC_data, ","));
-        } 
-        
-       if(oldEC != EC){ //if is new reading and values are ok, send them
+           EC=  atof(strtok(EC_data, ","));  //convert data to Float
+        }     
+       }
+      else{
+        Serial.println("Error reading EC");
+        }
+       
+     if((oldEC != EC || count > 21)&& EC > 100){ //if is new reading and values are ok, send them
           send(msgEC.set(EC, 1));
           oldEC=EC;
-       }    
-     }
-        Serial.print("EC: ");
+          count =0;
+       }
+       
+     if (count > 21){
+        count =0;
+        }
+       else{
+        count++;
+        Serial.println(count);
+         Serial.print("EC: ");
         Serial.println(EC);
         
        
@@ -233,7 +247,7 @@ if (oldDistance != Distance && Distance > 0){
 
 
 
-  sleep(SLEEP_TIME); //sleep a bit
+  //sleep(SLEEP_TIME); //sleep a bit
 }
 
 
