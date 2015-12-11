@@ -64,7 +64,7 @@ float deltaEC=0;
 int countEC=0;
 float oldTemp=0;
 int count=0;
-
+float maxECdelta = 10;
 
 //Sonar Stuff
 
@@ -206,12 +206,12 @@ if ((oldDistance != Distance && Distance > 0)|| count >21){
        
        deltaEC = abs(oldEC-EC);
        
-       if(deltaEC> oldEC * 0.1 && oldEC>0){ //hum... seems an error reading if difference > 10%
+       if(deltaEC> maxECdelta && oldEC>0){ //hum... seems an error reading if difference > 10 uS
         countEC ++;
         EC = oldEC;
        }
         
-       if(countEC>10){ //must be a good value
+       if(countEC>4){ //must be a good value
            countEC=0;
            EC=  atof(strtok(EC_data, ","));  //convert data to Float
         }     
@@ -223,7 +223,7 @@ if ((oldDistance != Distance && Distance > 0)|| count >21){
      if((oldEC != EC || count > 21)&& EC > 100){ //if is new reading and values are ok, send them
           send(msgEC.set(EC, 1));
           oldEC=EC;
-          count =0;
+          
        }
        
      if (count > 21){
