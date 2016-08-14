@@ -90,6 +90,8 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and
 #define CHILD_ID_DIST 1
 #define CHILD_ID_WATER_TEMP 2
 #define CHILD_ID_EC 3
+#define CHILD_ID_Switch 4
+#define CHILD_ID_Level 5
 unsigned long SLEEP_TIME = 2000; // Sleep time between reads (in milliseconds)
 #include <SPI.h>
 #include <MySensors.h>  
@@ -99,15 +101,17 @@ unsigned long SLEEP_TIME = 2000; // Sleep time between reads (in milliseconds)
  
 
 MyMessage msgDistance(CHILD_ID_DIST, V_DISTANCE);
-MyMessage msgEC(CHILD_ID_EC, V_IMPEDANCE);
+MyMessage msgEC(CHILD_ID_EC, V_EC);
 MyMessage msgWaterTemp(CHILD_ID_WATER_TEMP, V_TEMP);
+MyMessage msgWaterSwitch(CHILD_ID_Switch, S_BINARY);
+MyMessage msgWaterLevel(CHILD_ID_Level, V_VOLUME);
 
 
 void setup()  
 { 
-  //gw.begin();
+  
 
-  //Water temp
+  //Water temp begin
   sensors.begin(); 
   
   //EC stuff
@@ -133,16 +137,6 @@ void setup()
       myserial.print("Cal,one,270\r");
        Serial.println("Pronto");   */ 
 
-  // Send the Sketch Version Information to the Gateway
-  //gw.sendSketchInfo("FlowerStation", "1.0");
-
-  // Register all sensors to gw (they will be created as child devices)
-  //gw.present(CHILD_ID_TEMP, S_DISTANCE);
-  //gw.present(CHILD_ID_EC, S_CUSTOM);
-  //gw.present(CHILD_ID_WATER_TEMP, S_TEMP);
-  
- // metric = gw.getConfig().isMetric;
-
 }
 
 void presentation(){
@@ -150,10 +144,11 @@ void presentation(){
   sendSketchInfo("FlowerStation", "2.0");
 
   // Register all sensors to gw (they will be created as child devices)
-  present(CHILD_ID_DIST, S_DISTANCE, "Water Level");
-  present(CHILD_ID_EC, S_MULTIMETER,"EC Meter ");
-  present(CHILD_ID_WATER_TEMP, S_TEMP, "Water temp");
-  
+  present(CHILD_ID_DIST, S_DISTANCE, "Sonar Distance");
+  present(CHILD_ID_EC, S_WATER_QUALITY,"EC Meter ");
+  present(CHILD_ID_WATER_TEMP, S_WATER_QUALITY, "Water temp");
+  present(CHILD_ID_WATER_TEMP, S_BINARY, "Water Switch");
+  present(CHILD_ID_WATER_TEMP, S_WATER, "Water Volume");
   }
 
 
