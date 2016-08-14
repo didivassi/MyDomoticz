@@ -65,10 +65,10 @@ void setup()
 
 void presentation(){
   
-  sendSketchInfo("Flower air sensors", "1.1");
-  present(CHILD_ID_LIGHT, S_LIGHT_LEVEL, "Flower Lux");
-  present(CHILD_ID_TEMP, S_TEMP, "Flower Temp");
-  present(CHILD_ID_HUM, S_HUM, "Flower Hum");
+  sendSketchInfo("Flower air sensors 2", "2.0");
+  present(CHILD_ID_LIGHT, S_LIGHT_LEVEL, "Flower Lux 2");
+  present(CHILD_ID_TEMP, S_TEMP, "Flower Temp 2");
+  present(CHILD_ID_HUM, S_HUM, "Flower Hum 2");
  
   }
 void loop()
@@ -84,7 +84,7 @@ void loop()
   send(msgLight.set(lux));
 if (isnan(temperature) or isnan(humidity)) {
       Serial.println("Failed reading temperature or humidity from DHT");
-  } else if (temperature != lastTemp or humidity != lastHum) {
+  } else if (temperature != lastTemp and temperature <50 or humidity != lastHum) {
     lastTemp = temperature;
     //gw.send(msgTemp.set(temperature, 1));
     send(msgTemp.set(temperature, 1));

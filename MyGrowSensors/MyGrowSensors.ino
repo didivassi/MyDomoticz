@@ -58,7 +58,7 @@ byte string_received=0;            //used to identify when we have received a st
 
 float EC=0;                  //used to hold a floating point number that is the EC.
 
-int oldDistance=0;
+float oldDistance=0;
 float oldEC=0;
 float deltaEC=0;
 int countEC=0;
@@ -92,7 +92,7 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and
 #define CHILD_ID_EC 3
 unsigned long SLEEP_TIME = 2000; // Sleep time between reads (in milliseconds)
 #include <SPI.h>
-#include <MySensor.h>  
+#include <MySensors.h>  
   
 
 //MySensor gw;
@@ -169,8 +169,8 @@ void loop()
 */
 
 //Sonar
-unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
-int Distance=uS / US_ROUNDTRIP_CM;
+float uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
+float Distance=uS / US_ROUNDTRIP_CM;
  
 if ((oldDistance != Distance && Distance > 0)|| count >21){
   send(msgDistance.set(Distance, 1));
@@ -211,7 +211,7 @@ if ((oldDistance != Distance && Distance > 0)|| count >21){
         EC = oldEC;
        }
         
-       if(countEC>4){ //must be a good value
+       if(countEC>10){ //must be a good value
            countEC=0;
            EC=  atof(strtok(EC_data, ","));  //convert data to Float
         }     
@@ -220,7 +220,7 @@ if ((oldDistance != Distance && Distance > 0)|| count >21){
         Serial.println("Error reading EC");
         }
        
-     if((oldEC != EC || count > 21)&& EC > 100){ //if is new reading and values are ok, send them
+     if((oldEC != EC || count > 21)&& EC > 300 && EC < 3000){ //if is new reading and values are ok, send them
           send(msgEC.set(EC, 1));
           oldEC=EC;
           

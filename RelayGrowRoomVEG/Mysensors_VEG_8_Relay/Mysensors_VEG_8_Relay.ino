@@ -38,15 +38,15 @@
 #define MY_REPEATER_FEATURE
 #include <string.h>
 #include <SPI.h>
-#include <MySensor.h>
+#include <MySensors.h>
 
 #define RELAY_1  14  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
-#define NUMBER_OF_RELAYS 10 // Total number of attached relays
+#define NUMBER_OF_RELAYS 8 // Total number of attached relays
 #define RELAY_ON 1  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
 
-void setup()  
+void before()  
 {   
   for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS;sensor++, pin++) {
     // Then set relay pins in output mode
@@ -58,22 +58,29 @@ void setup()
   }
 }
 
+void setup() {
+  
+}
+
 void presentation()  
 {   
   // Send the sketch version information to the gateway and Controller
-  sendSketchInfo("RelayFlower", "3.0");
+  sendSketchInfo("RelayGrow", "1.0");
 
   for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS;sensor++, pin++) {
     // Register all sensors to gw (they will be created as child devices)
     //String string1("Plug " + String(sensor, DEC));
+    //delay(100);
     char myConcatenation[80];
-    char myCharArray[]="Plug";
+    char myCharArray[]="PlugGrow";
     int myInt=sensor;
     char myStr[] = "";
     sprintf(myConcatenation,"%s %i %s",myCharArray,myInt,myStr);
     Serial.println(myConcatenation);
     present(sensor, S_LIGHT, myConcatenation, true);
     
+
+
     //Serial.print(myConcatenation);
   }
 }
