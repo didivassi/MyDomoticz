@@ -163,6 +163,34 @@ void loop()
 
 */
 
+
+//Water Switch
+
+int switchState = 1; // always on - tank is full
+int sensorSwitch = analogRead(A0);
+int sensorLevel = analogRead(A1);
+  // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+int voltageSwitch = sensorSwitch * (5 / 1023.0);
+int voltageLevel = sensorLevel * (100 / 1023.0);
+  // print out the value you read:
+  Serial.println(voltageSwitch);
+  Serial.println(voltageLevel);
+
+int oldvoltageSwitch;
+int oldvoltageLevel;
+if (oldvoltageSwitch != voltageSwitch){
+    oldvoltageSwitch = voltageSwitch;
+  if(voltageSwitch>0){voltageSwitch=1;}
+  send(msgWaterSwitch.set(voltageSwitch, 1));
+  
+}
+if (oldvoltageLevel != voltageLevel){
+  send(msgWaterLevel.set(voltageLevel, 1));
+  oldvoltageLevel = voltageLevel;
+}
+
+
+
 //Sonar
 float uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
 float Distance=uS / US_ROUNDTRIP_CM;
